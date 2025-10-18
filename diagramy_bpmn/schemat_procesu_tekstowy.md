@@ -1,6 +1,6 @@
-# 📊 Schemat procesu - wizualizacja tekstowa (4 baseny)
+# 📊 Schemat procesu TO BE - wizualizacja tekstowa (4 baseny)
 
-## Przepływ procesu produkcji mrożonej pizzy
+## Przepływ procesu produkcji mrożonej pizzy (stan docelowy)
 
 ```
 ╔═══════════════════════════════════════════════════════════════════════════════╗

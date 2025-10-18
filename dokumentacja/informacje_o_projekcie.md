@@ -19,11 +19,11 @@ Definicja struktury diagramu BPMN (zgodnie z BPMN 2.0):
 
 ### 2. **diagram_AS_IS_opis.md**
 Szczegółowy opis diagramu BPMN AS IS (stan obecny):
-- 4 baseny z zadaniami (tasks) w każdym basenie
+- 3 baseny z zadaniami (tasks) w każdym basenie (Fabryka z 7 torami w tym transport własny, Sklep, Klient)
 - Bramki decyzyjne (gateways)
 - Wydarzenia (events)
-- Message Flows między basenami (8 przepływów komunikatów)
-- Zidentyfikowane problemy (15 głównych, we wszystkich basenach)
+- Message Flows między basenami (7 przepływów komunikatów)
+- Zidentyfikowane problemy (17 głównych, we wszystkich basenach)
 
 ### 3. **diagram_TO_BE_opis.md**
 Szczegółowy opis diagramu BPMN TO BE (stan docelowy):

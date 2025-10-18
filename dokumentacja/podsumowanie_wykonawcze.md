@@ -20,8 +20,8 @@ Zmapowanie i usprawnienie procesu produkcji mrożonej pizzy od przygotowania cia
 - **Przestoje**: 8 godzin/miesiąc
 
 ### Struktura procesu:
-- **4 baseny BPMN**: Fabryka (6 torów) → Firma transportowa (1 tor) → Sklep (1 tor) → Klient (1 tor)
-- **8 Message Flows**: Przepływ komunikatów między organizacjami
+- **3 baseny BPMN**: Fabryka (7 torów, w tym transport własny) → Sklep (1 tor) → Klient (1 tor)
+- **7 Message Flows**: Przepływ komunikatów między organizacjami
 - **19 interesariuszy**: 12 ról ludzkich + 7 systemów IT
 - **10 reguł biznesowych**: Od kontroli jakości po zarządzanie magazynem
 - **3 punkty kontrolne w Fabryce**: Kontrola toppingu, detektor metali, ważenie
