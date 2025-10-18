@@ -2,11 +2,13 @@
 
 ## Opis struktury diagramu (Stan obecny)
 
-### Struktura: 4 baseny (pools) reprezentujące różne organizacje
+### Struktura AS IS: **3 baseny** (pools) reprezentujące różne organizacje
+
+**Kluczowa różnica AS IS vs TO BE**: W AS IS transport jest **torem wewnątrz fabryki**, nie osobnym basenem!
 
 ---
 
-# 🏭 BASEN 1: Fabryka Iglotex
+# 🏭 BASEN 1 (AS IS): Fabryka Iglotex - wszystko "in-house"
 
 ## Lane 1.1: Dział Piekarni
 
@@ -155,56 +157,53 @@
 **Task 6.6:** Przygotowanie dokumentów wysyłkowych
 - Typ: User Task
 
-**End Event (Fabryka):** Gotowe do przekazania firmie transportowej
-
-**→ Message Flow do Basenu 2 (Firma transportowa)**  
-   *Wysłanie: Zlecenie transportu + Dokumenty CMR + Szczegóły dostawy*
+**→ Sequence Flow do Lane 1.7 (Dystrybucja - transport własny)**
 
 ---
 
-# 🚚 BASEN 2: Firma transportowa/Logistyka
+## Lane 1.7: Dział Dystrybucji (transport własny)
 
-## Lane 2.1: Dział Transportu
+**Task 7.1:** Planowanie tras dostaw
+- Typ: User Task
+- Problem: Ręczne planowanie, brak optymalizacji
 
-**Start Event (Message):** Otrzymanie zlecenia transportu od fabryki
-
-**Task 7.1:** Przyjęcie zlecenia i planowanie trasy
+**Task 7.2:** Przygotowanie dokumentów dostawy
 - Typ: User Task
 
-**Task 7.2:** Przygotowanie dokumentów przewozowych (CMR)
+**Task 7.3:** Załadunek palet na samochód firmowy (własna flota)
+- Typ: User Task (wózek widłowy + kierowca)
+- Problem: Stare samochody, mała flota
+
+**Task 7.4:** Transport do sklepu
+- Typ: Service Task
+- Problem: Brak GPS, brak monitoringu temperatury real-time (tylko rejestrator)
+- Problem: Własni kierowcy (pracownicy fabryki, nie specjaliści logistyczni)
+
+**Task 7.5:** Powiadomienie sklepu o dostawie
+- Typ: User Task (telefon)
+- Problem: Komunikacja manualna
+
+**Task 7.6:** Dojazd do sklepu
+- Typ: Service Task
+
+**Task 7.7:** Rozładunek towaru w sklepie
+- Typ: User Task (kierowca + pracownik sklepu)
+
+**Task 7.8:** Podpisanie dokumentów dostawy
 - Typ: User Task
 
-**Task 7.3:** Dojazd do fabryki
-- Typ: Service Task
+**End Event (Fabryka):** Produkt dostarczony do sklepu
 
-**Task 7.4:** Załadunek palet na samochód chłodniczy
-- Typ: User Task (wózek widłowy fabryki lub kierowca)
-
-**Task 7.5:** Potwierdzenie odbioru (podpis CMR)
-- Typ: User Task
-
-**→ Message Flow do Basenu 1 (Fabryka)**  
-   *Wysłanie: Potwierdzenie odbioru*
-
-**Task 7.6:** Transport do sklepu (monitoring temperatury -18°C ±3°C)
-- Typ: Service Task
-- Problem AS IS: Brak monitoringu real-time, tylko rejestrator
-
-**Task 7.7:** Dojazd do sklepu
-- Typ: Service Task
-
-**End Event (Transport):** Przygotowany do rozładunku
-
-**→ Message Flow do Basenu 3 (Sklep)**  
-   *Wysłanie: Powiadomienie o przyjeździe (telefon/SMS)*
+**→ Message Flow do Basenu 2 (Sklep)**  
+   *Informacja: Dostawa wykonana (dokumenty, podpisy)*
 
 ---
 
-# 🏪 BASEN 3: Sklep detaliczny
+# 🏪 BASEN 2 (AS IS): Sklep detaliczny
 
-## Lane 3.1: Dział Magazynowy Sklepu
+## Lane 2.1: Dział Magazynowy Sklepu
 
-**Start Event (Message):** Powiadomienie o dostawie od firmy transportowej
+**Start Event (Message):** Powiadomienie o dostawie od fabryki (telefon)
 
 **Task 8.1:** Przyjęcie dostawy
 - Typ: User Task
@@ -221,17 +220,17 @@
 **Gateway (Exclusive):** Czy dostawa jest zgodna?
 - **TAK** → Kontynuacja
 - **NIE** → **Task 8.5a:** Sporządzenie protokołu reklamacyjnego
-  - → Message Flow do Basenu 2 i/lub Basenu 1 (Reklamacja)
+  - → Message Flow do Basenu 1 - Fabryka (Reklamacja)
   - → End Event (Reklamacja)
 
 **Task 8.5:** Rozładunek towaru
 - Typ: User Task (kierowca + pracownik sklepu)
 
-**Task 8.6:** Podpisanie dokumentów odbioru (CMR)
+**Task 8.6:** Podpisanie dokumentów odbioru
 - Typ: User Task
 
-**→ Message Flow do Basenu 2 (Transport)**  
-   *Wysłanie: Potwierdzenie odbioru (podpis CMR)*
+**→ Message Flow do Basenu 1 (Fabryka)**  
+   *Wysłanie: Potwierdzenie odbioru (podpis na dokumencie)*
 
 **Task 8.7:** Transport do zamrażarki sklepowej
 - Typ: User Task
@@ -250,14 +249,14 @@
 
 **End Event (Sklep):** Produkt dostępny do sprzedaży
 
-**→ Message Flow do Basenu 4 (Klient)**  
-   *Informacja: Produkt dostępny (cena, promocje)*
+**→ Message Flow do Basenu 3 (Klient)**  
+   *Informacja: Produkt dostępny (fizycznie na półce)*
 
 ---
 
-# 👤 BASEN 4: Klient końcowy
+# 👤 BASEN 3 (AS IS): Klient końcowy
 
-## Lane 4.1: Konsument
+## Lane 3.1: Konsument
 
 **Start Event:** Potrzeba zakupu pizzy
 
@@ -267,7 +266,7 @@
 **Task 9.2:** Zakup pizzy (płatność)
 - Typ: User Task
 
-**→ Message Flow do Basenu 3 (Sklep)**  
+**→ Message Flow do Basenu 2 (Sklep)**  
    *Wysłanie: Płatność*
 
 **Task 9.3:** Transport pizzy do domu
@@ -287,28 +286,30 @@
 **Gateway (Exclusive):** Czy klient jest zadowolony?
 - **TAK** → End Event (Sukces)
 - **NIE** → **Task 9.7:** Reklamacja do sklepu/producenta
-  - → Message Flow do Basenu 3 lub Basenu 1
+  - → Message Flow do Basenu 2 (Sklep) lub Basenu 1 (Fabryka)
   - → End Event (Reklamacja)
 
 ---
 
-## 🔄 Podsumowanie Message Flow (Przepływ komunikatów)
+## 🔄 Podsumowanie Message Flow (Przepływ komunikatów) - AS IS
 
-### 1. Fabryka → Firma transportowa
-- **Zlecenie transportu** (dokumenty, termin, adres sklepu)
-- Trigger: Zamówienie sklepu + gotowe palety
+**Struktura: 3 baseny** (Fabryka → Sklep → Klient)
 
-### 2. Firma transportowa → Fabryka
-- **Potwierdzenie odbioru** (podpis CMR)
-- Trigger: Załadunek zakończony
+### 1. Sklep → Fabryka
+- **Zamówienie** (telefon, fax, email, system B2B)
+- Trigger: Niski stan magazynowy w sklepie
 
-### 3. Firma transportowa → Sklep
-- **Powiadomienie o dostawie** (telefon/SMS)
-- Trigger: Kierowca w drodze
+### 2. Fabryka → Sklep
+- **Powiadomienie o dostawie** (telefon)
+- Trigger: Własny transport fabryki w drodze (Lane 1.7)
 
-### 4. Sklep → Firma transportowa
-- **Potwierdzenie odbioru** (podpis CMR)
-- **Ewentualna reklamacja** (uszkodzenia, temperatura)
+### 3. Fabryka → Sklep
+- **Dostawa produktów** (fizyczna)
+- Trigger: Przyjazd kierowcy fabryki
+
+### 4. Sklep → Fabryka
+- **Potwierdzenie odbioru** (podpis na dokumentach)
+- **Ewentualna reklamacja** (wada produktu, uszkodzenia)
 - Trigger: Rozładunek zakończony
 
 ### 5. Sklep → Klient
@@ -320,16 +321,15 @@
 - **Ewentualna reklamacja** (wada jakościowa)
 - Trigger: Decyzja zakupu
 
-### 7. Sklep → Fabryka (pośrednio lub bezpośrednio)
-- **Zamówienie** (system B2B, telefon, email)
-- **Reklamacja** (jeśli dotyczy produktu, nie transportu)
-- Trigger: Niski stan magazynowy / Potrzeba
+### 7. Klient → Fabryka (przez sklep lub bezpośrednio)
+- **Reklamacja jakościowa**
+- Trigger: Problem z produktem
 
 ---
 
-## ❌ Problemy zidentyfikowane w AS IS
+## ❌ Problemy zidentyfikowane w AS IS (3 baseny)
 
-### Basen 1 (Fabryka):
+### Basen 1 (Fabryka - w tym transport własny Lane 1.7):
 1. ❌ Brak automatycznej analizy przyczyn wadliwości produktu
 2. ❌ Ręczne układanie palet i owijanie folią (czasochłonne)
 3. ❌ Brak cyfrowej kontroli przepływu produktu między etapami
@@ -337,27 +337,38 @@
 5. ❌ Brak predykcyjnego zarządzania zapasami
 6. ❌ Kontrola jakości tylko wizualna na jednym etapie
 7. ❌ Brak automatycznego raportowania o stratach produkcyjnych
+8. ❌ **Transport własny (Lane 1.7)**: Stare samochody, brak GPS, brak monitoringu real-time
+9. ❌ **Transport własny**: Mała flota, brak specjalizacji logistycznej
+10. ❌ **Transport własny**: Drogie utrzymanie (kierowcy, serwis, paliwo)
 
-### Basen 2 (Transport):
-8. ❌ Brak monitoringu temperatury w czasie rzeczywistym podczas transportu
-9. ❌ Brak automatycznego powiadamiania sklepu o dostawie
-10. ❌ Ręczne przygotowanie dokumentów CMR
-
-### Basen 3 (Sklep):
+### Basen 2 (Sklep):
 11. ❌ Manualna weryfikacja dostawy (podatna na błędy)
 12. ❌ Brak automatycznego potwierdzenia odbioru
+13. ❌ Ręczna rejestracja przyjęcia w systemie sklepowym
 
 ### Między basenami:
-13. ❌ Brak integracji systemów (fabryka-transport-sklep)
-14. ❌ Komunikacja głównie telefoniczna/papierowa
-15. ❌ Brak end-to-end visibility (brak widoczności produktu w całym łańcuchu)
+14. ❌ Brak integracji systemów (fabryka-sklep)
+15. ❌ Komunikacja głównie telefoniczna/papierowa
+16. ❌ Brak end-to-end visibility (brak widoczności produktu w całym łańcuchu)
+17. ❌ **Główny problem**: Transport wewnątrz fabryki (tor), nie specjalistyczna firma
 
 ---
 
-## 📝 Uwagi dotyczące diagramu
+## 📝 Uwagi dotyczące diagramu AS IS
 
-- **Baseny (Pools)** = Różne organizacje (Fabryka, Transport, Sklep, Klient)
+### Struktura: 3 baseny
+- **Basen 1: Fabryka** (7 torów, w tym Lane 1.7 Dystrybucja - transport własny)
+- **Basen 2: Sklep** (1 tor)
+- **Basen 3: Klient** (1 tor)
+
+### Notacja BPMN:
+- **Baseny (Pools)** = Różne organizacje (Fabryka, Sklep, Klient)
+- **Tory (Lanes)** = Działy wewnątrz organizacji (np. Lane 1.7 Dystrybucja w Fabryce)
 - **Message Flow** (⚡ przerywana linia) = Komunikacja między organizacjami
 - **Sequence Flow** (→ ciągła linia) = Przepływ wewnątrz organizacji
 - **Intermediate Event (Message)** = Punkt odbioru wiadomości z innego basenu
 - **End Event** w jednym basenie może być triggerem dla **Start Event (Message)** w innym basenie
+
+### Kluczowa różnica AS IS vs TO BE:
+⚠️ **AS IS**: Transport = tor wewnątrz fabryki (Lane 1.7) - wszystko "in-house"  
+✅ **TO BE**: Transport = osobny basen (Firma transportowa) - outsourcing!
